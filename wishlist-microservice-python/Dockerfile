@@ -4,10 +4,7 @@ WORKDIR /app
 
 COPY . /app
 
-RUN pip install --no-cache-dir flask
-
 EXPOSE 1003
 
-ENV FLASK_APP=index.py
 
 CMD ["flask", "run", "--host=0.0.0.0", "--port=1003"]
