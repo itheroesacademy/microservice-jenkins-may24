@@ -1,14 +1,4 @@
-
-FROM maven:3.6.3-jdk-11 AS build
-
-WORKDIR /app
-
-COPY pom.xml .
-RUN mvn dependency:go-offline -B
-
-COPY src ./src
-RUN mvn package -DskipTests
-
+FROM openjdk
+COPY target/*.jar /
 EXPOSE 1002
-
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java","-jar","/my-app-1.0-SNAPSHOT.jar"]
