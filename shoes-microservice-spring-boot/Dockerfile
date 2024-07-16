@@ -1,5 +1,14 @@
-FROM maven:3-alpine
+
+FROM maven:3.6.3-jdk-11 AS build
+
 WORKDIR /app
-COPY target/*.jar .
+
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+COPY src ./src
+RUN mvn package -DskipTests
+
 EXPOSE 1002
-CMD ["java","-jar","/shoes-0.0.1-SNAPSHOT.jar"]
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
