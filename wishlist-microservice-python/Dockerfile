@@ -9,4 +9,4 @@ RUN pip install flask
 
 EXPOSE 1003
 
-CMD ["python", "index.py"]
+ENTRYPOINT ["python", "index.py"]
