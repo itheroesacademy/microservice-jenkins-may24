@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-     "test": "echo \"No test specified\" && exit 1"
+      "test": "echo "123" | sudo -S npm start",
+  "start": "node app.js"
   },
   "author": "Sarat Chandra Ejjapureddi",
   "license": "ISC",
