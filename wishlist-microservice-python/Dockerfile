@@ -3,12 +3,10 @@ FROM python:3.8-slim
 
 WORKDIR /app
 
-COPY . /app
+COPY . .
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install flask
 
 EXPOSE 1003
 
-ENV FLASK_APP=index.py
-
-CMD ["flask", "run", "--host=0.0.0.0", "--port=1003"]
+CMD ["python", "index.py"]
