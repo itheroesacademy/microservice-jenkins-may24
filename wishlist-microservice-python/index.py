@@ -34,5 +34,5 @@ def product(product):
 
 
 if __name__ == '__main__':
-    app.run(debug=True,port='1003')
+    app.run(port='1003')
     print('Wishlist Microservice Started...')
