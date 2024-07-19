@@ -37,10 +37,10 @@ pipeline {
                         docker exec my-python-container pytest || true
                         
                         # Stop the container after tests
-                        docker stop my-python-container
+                        #docker stop my-python-container
                         
                         # Remove the container after stopping it
-                        docker rm my-python-container
+                        #docker rm my-python-container
                     """
                 }
             }
@@ -53,7 +53,7 @@ pipeline {
                 echo 'Cleaning up...'
                 sh """
                     # Remove the Docker image
-                    docker rmi ${DOCKER_IMAGE} || true
+                    #docker rmi ${DOCKER_IMAGE} || true
                 """
             }
         }
