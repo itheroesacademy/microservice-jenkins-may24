@@ -1,0 +1,61 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE = 'my-python-app'
+        CONTAINER_NAME = 'my-python-container'
+        DOCKERFILE_DIR = '.' 
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout the code from GitHub repository
+               checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'github', url: 'https://github.com/itheroesacademy/Dinesh.git']])
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    echo 'Building Docker image...'
+                    sh "docker build -t my-python-app ."
+                }
+            }
+        }
+        stage('Run Tests in Docker Container') {
+            steps {
+                script {
+                    echo 'Running tests in Docker container...'
+                    sh """
+                        # Run the container in detached mode
+                        docker run --name my-python-container -d -p 1003:1003 ${DOCKER_IMAGE} tail -f /dev/null
+                        
+                        # Check the container logs to debug issues
+                        docker logs my-python-container
+                        
+                        # Execute pytest inside the running container
+                        docker exec my-python-container pytest || true
+                        
+                        # Stop the container after tests
+                        docker stop my-python-container
+                        
+                        # Remove the container after stopping it
+                        docker rm my-python-container
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                echo 'Cleaning up...'
+                sh """
+                    # Remove the Docker image
+                    docker rmi ${DOCKER_IMAGE} || true
+                """
+            }
+        }
+    }
+}
