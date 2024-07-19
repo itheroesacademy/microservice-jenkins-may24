@@ -1,0 +1,74 @@
+pipeline{
+
+    agent any
+
+        tools {
+       maven 'maven' 
+        }
+
+    stages{
+        stage('Checkout') {
+            steps {
+                script {
+                    checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'GitHub', url: 'https://github.com/itheroesacademy/microservice-jenkins-may24.git']])
+                }
+            }
+        }
+
+        stage('Build and Test') {
+            steps {
+                script {
+                    dir('offers-microservice-spring-boot') {
+                        sh 'mvn -Dmaven.test.failure.ignore=true clean package'
+                    }
+                }
+            }
+        }
+        
+        stage('build docker image'){
+           steps{
+               script {
+                dir('offers-microservice-spring-boot') {
+                    sh 'docker build -t lichchhavi/e-commerce-offers .'
+                    }
+                }
+            }
+        }
+
+        stage('push docker image'){
+           steps{
+               script {
+                withDockerRegistry(credentialsId: 'DockerHub') {
+                    sh 'docker push lichchhavi/e-commerce-offers'
+                    }
+                }
+            }
+        }
+
+        stage('pull docker image and create docker container'){
+           steps{
+               script {
+                withDockerRegistry(credentialsId: 'DockerHub') {
+                    sh 'docker pull lichchhavi/e-commerce-offers'
+                    //sh 'docker stop offers'
+                    //sh 'docker rm offers'
+                    sh "docker run -itd --name offers lichchhavi/e-commerce-offers /bin/bash"
+                    }
+                }
+            }
+        }
+    }
+
+    post{
+        failure{
+            echo 'Failure!'
+            mail to: 'tasikadubey@gmail.com',
+                subject: "FAILED: ${env.JOB_NAME} - Build ${env.BUILD_NUMBER}",
+                body: "Job ${env.JOB_NAME} ${env.BUILD_NUMBER} ${env.BUILD_URL} failed."
+        }
+        success{
+            echo 'Build and Test Stages Successful!'
+            archiveArtifacts artifacts: '**/target/*.jar', onlyIfSuccessful: true
+        }
+    }
+}   
