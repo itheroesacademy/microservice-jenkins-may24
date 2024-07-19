@@ -7,6 +7,11 @@ app = Flask(__name__)
 CORS(app)
 
 
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+
 @app.route('/', methods = ['GET'])
 def hello():
    print('Getting List of WishList Items')
@@ -34,5 +39,5 @@ def product(product):
 
 
 if __name__ == '__main__':
-    app.run(debug = True, port='1003')
+    app.run(port='1003')
     print('Wishlist Microservice Started...')
