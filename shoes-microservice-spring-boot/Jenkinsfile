@@ -1,0 +1,40 @@
+pipeline {
+
+    agent any
+
+        tools {
+            maven "maven"
+        }
+
+    stages {
+        stage("Checkout") {
+            steps{
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'github', url: 'https://github.com/itheroesacademy/microservice-jenkins-may24.git']])
+            }
+        }
+        stage("Build Maven") {
+            steps{
+                dir('shoes-microservice-spring-boot') {
+                    sh "mvn -Dmaven.test.failure.ignore=true clean package"
+                }
+            }
+        }
+        stage("Build Docker Image") {
+            steps{
+                dir('shoes-microservice-spring-boot') {
+                    sh 'docker build -t dinesh8080/springboot111 .'
+                }
+            }
+        }
+
+        stage("Push Docker Image") {
+            steps{
+                withDockerRegistry(credentialsId: 'dockerhub', url: "" ) {
+                    sh 'docker push dinesh8080/springboot111'
+                    sh "docker pull dinesh8080/springboot111"
+                    sh "docker run -itd --name contt-1 dinesh8080/springboot111 /bin/bash"
+                }
+            }
+        }
+    }
+}
