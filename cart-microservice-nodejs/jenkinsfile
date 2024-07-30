@@ -1,0 +1,61 @@
+pipeline{
+
+    agent any
+
+        tools {
+            nodejs 'node' 
+        }
+
+    stages{
+        stage('Checkout') {
+            steps {
+                script {
+                    checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'GitHub', url: 'https://github.com/itheroesacademy/microservice-jenkins-may24.git']])
+                   }
+            }
+        }
+
+        stage('Install dependency') {
+            steps {
+                script {
+                   dir('cart-microservice-nodejs') {
+                    sh 'npm install'
+                    }
+                }
+            }
+        }
+
+        stage('Build docker image') {
+            steps {
+                script {
+                    dir('cart-microservice-nodejs') {
+                        sh 'docker build -t lichchhavi/e-commerce-cart .'
+                    }
+                }
+            }
+        }
+
+        stage("deploy docker image"){
+           steps{
+                script {
+                    withDockerRegistry(credentialsId: 'DockerHub') {
+                        sh "docker push lichchhavi/e-commerce-cart"
+                    } 
+                }
+            }
+        }
+
+        stage("Pull docker image and create docker container"){
+           steps{
+                script {
+                    withDockerRegistry(credentialsId: 'DockerHub') {
+                        sh "docker pull lichchhavi/e-commerce-cart"
+                       // sh "docker stop cart"
+                       // sh "docker rm cart"
+                        sh "docker run -itd --name cart lichchhavi/e-commerce-cart /bin/bash"
+                    }
+                }
+            }
+        }
+    }
+}   
